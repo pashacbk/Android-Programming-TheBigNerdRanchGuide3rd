@@ -67,6 +67,7 @@ public class QuizzActivity extends Activity {
             @Override
             public void onClick(View view) {
                     checkAnswer(true);
+                    Log.d(TAG, String.valueOf(mCurrentIndex));
                     //After answer question disable buttons
                     mTrueButton.setEnabled(false);
                     mFalseButton.setEnabled(false);
@@ -80,6 +81,7 @@ public class QuizzActivity extends Activity {
             @Override
             public void onClick(View view) {
                     checkAnswer(false);
+                    Log.d(TAG, String.valueOf(mCurrentIndex));
                     //After answer question disable buttons
                     mTrueButton.setEnabled(false);
                     mFalseButton.setEnabled(false);
@@ -94,12 +96,16 @@ public class QuizzActivity extends Activity {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
                 mIsCheater = false;
                 updateQuestion();
+                Log.d(TAG, String.valueOf(mCurrentIndex));
                 Log.d(TAG, String.valueOf(mAnswerBank[mCurrentIndex]));
                 //Verify if question was completed or not
                 //to enable or disable buttons
                 if(mAnswerBank[mCurrentIndex] == 0) {
                     mTrueButton.setEnabled(true);
                     mFalseButton.setEnabled(true);
+                } else {
+                    mTrueButton.setEnabled(false);
+                    mFalseButton.setEnabled(false);
                 }
                 checkResultQuizz();
                 //reset cheat_index when go to another question
@@ -113,12 +119,16 @@ public class QuizzActivity extends Activity {
             public void onClick(View view) {
                 mCurrentIndex = (mCurrentIndex + (mQuestionBank.length-1)) % mQuestionBank.length;
                 updateQuestion();
+                Log.d(TAG, String.valueOf(mCurrentIndex));
                 Log.d(TAG, String.valueOf(mAnswerBank[mCurrentIndex]));
                 //Verify if question was completed or not
                 //to enable or disable buttons
                 if(mAnswerBank[mCurrentIndex] == 0) {
                     mTrueButton.setEnabled(true);
                     mFalseButton.setEnabled(true);
+                } else {
+                    mTrueButton.setEnabled(false);
+                    mFalseButton.setEnabled(false);
                 }
                 checkResultQuizz();
                 //reset cheat_index when go to another question
