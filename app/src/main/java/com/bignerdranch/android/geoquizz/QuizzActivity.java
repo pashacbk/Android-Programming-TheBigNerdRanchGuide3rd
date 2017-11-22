@@ -1,6 +1,7 @@
 package com.bignerdranch.android.geoquizz;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,12 +14,14 @@ public class QuizzActivity extends Activity {
 
     private Button mTrueButton;
     private Button mFalseButton;
+    private Button mCheatButton;
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
     private TextView mQuestionTextView;
 
     private static final String TAG = "QuizzActivity";
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 0;
 
     private Question[] mQuestionBank = new Question[] {
             new Question(R.string.question_australia, true),
@@ -29,6 +32,7 @@ public class QuizzActivity extends Activity {
             new Question(R.string.question_asia, true),
     };
     private int mCurrentIndex = 0;
+    private boolean mIsCheater;
     //Massive with answer results
     private int[] mAnswerBank = new int[mQuestionBank.length];
     //Index to verify if all questions are completed
@@ -84,7 +88,8 @@ public class QuizzActivity extends Activity {
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                mIsCheater = false;
                 updateQuestion();
                 Log.d(TAG, String.valueOf(mAnswerBank[mCurrentIndex]));
                 //Verify if question was completed or not
@@ -113,8 +118,33 @@ public class QuizzActivity extends Activity {
                 checkResultQuizz();
             }
         });
+
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start CheatActivity
+                boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+                Intent intent = CheatActivity.newIntent(QuizzActivity.this, answerIsTrue);
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
+            }
+        });
+
         updateQuestion();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+            mIsCheater = CheatActivity.wasAnswerShown(data);
+        }
     }
 
     //Update text question on TextView
@@ -127,14 +157,18 @@ public class QuizzActivity extends Activity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
         int messageResId = 0;
-        if (userPressedTrue == answerIsTrue) {
-            messageResId = R.string.correct_toast;
-            //1 for correct answer
-            mAnswerBank[mCurrentIndex] = 1;
+        if (mIsCheater) {
+            messageResId = R.string.judgment_toast;
         } else {
-            messageResId = R.string.incorrect_toast;
-            //2 for incorrect answer
-            mAnswerBank[mCurrentIndex] = 2;
+            if (userPressedTrue == answerIsTrue) {
+                messageResId = R.string.correct_toast;
+                //1 for correct answer
+                mAnswerBank[mCurrentIndex] = 1;
+            } else {
+                messageResId = R.string.incorrect_toast;
+                //2 for incorrect answer
+                mAnswerBank[mCurrentIndex] = 2;
+            }
         }
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
                 .show();
