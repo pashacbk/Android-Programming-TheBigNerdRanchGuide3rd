@@ -21,6 +21,7 @@ public class QuizzActivity extends Activity {
 
     private static final String TAG = "QuizzActivity";
     private static final String KEY_INDEX = "index";
+    private static final String KEY_INDEX_CHEAT = "index_cheat";
     private static final int REQUEST_CODE_CHEAT = 0;
 
     private Question[] mQuestionBank = new Question[] {
@@ -39,6 +40,7 @@ public class QuizzActivity extends Activity {
     private int mIndexCompleteQuizz = 0;
     //Sum of true answers
     private int sumAnswer = 0;
+    private int cheat_index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class QuizzActivity extends Activity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            cheat_index = savedInstanceState.getInt(KEY_INDEX_CHEAT, 0);
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
@@ -99,6 +102,8 @@ public class QuizzActivity extends Activity {
                     mFalseButton.setEnabled(true);
                 }
                 checkResultQuizz();
+                //reset cheat_index when go to another question
+                cheat_index = 0;
             }
         });
 
@@ -116,6 +121,8 @@ public class QuizzActivity extends Activity {
                     mFalseButton.setEnabled(true);
                 }
                 checkResultQuizz();
+                //reset cheat_index when go to another question
+                cheat_index = 0;
             }
         });
 
@@ -144,6 +151,11 @@ public class QuizzActivity extends Activity {
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
+
+            //Verify if mIsCheater==true then cheat_index=1
+            if(mIsCheater) {
+                cheat_index = 1;
+            }
         }
     }
 
@@ -157,9 +169,13 @@ public class QuizzActivity extends Activity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
         int messageResId = 0;
-        if (mIsCheater) {
+        if (mIsCheater || cheat_index==1) {
             messageResId = R.string.judgment_toast;
-        } else {
+            //If cheated then don't receive result point
+            //Actually you don't receive them because after answer buttons are blocked
+            mAnswerBank[mCurrentIndex] = 2;
+        }
+        else {
             if (userPressedTrue == answerIsTrue) {
                 messageResId = R.string.correct_toast;
                 //1 for correct answer
@@ -208,6 +224,8 @@ public class QuizzActivity extends Activity {
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "onSaveInstanceState");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        //save cheat_index to not allow cheat when rotate screen
+        savedInstanceState.putInt(KEY_INDEX_CHEAT, cheat_index);
     }
     @Override
     public void onStop() {
