@@ -40,6 +40,7 @@ public class QuizzActivity extends Activity {
     private int mIndexCompleteQuizz = 0;
     //Sum of true answers
     private int sumAnswer = 0;
+    //Index to verify if cheated
     private int cheat_index = 0;
 
     @Override
@@ -51,6 +52,10 @@ public class QuizzActivity extends Activity {
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
             cheat_index = savedInstanceState.getInt(KEY_INDEX_CHEAT, 0);
+            //Recreate Bank of answer results
+            mAnswerBank = savedInstanceState.getIntArray("score");
+            //Recreate the index complete quizz
+            mIndexCompleteQuizz = savedInstanceState.getInt("complete_quizz");
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
@@ -149,6 +154,15 @@ public class QuizzActivity extends Activity {
 
         updateQuestion();
 
+        //Save state of buttons when orientation change
+        if(mAnswerBank[mCurrentIndex] == 0) {
+            mTrueButton.setEnabled(true);
+            mFalseButton.setEnabled(true);
+        } else {
+            mTrueButton.setEnabled(false);
+            mFalseButton.setEnabled(false);
+        }
+
     }
 
     @Override
@@ -236,6 +250,10 @@ public class QuizzActivity extends Activity {
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
         //save cheat_index to not allow cheat when rotate screen
         savedInstanceState.putInt(KEY_INDEX_CHEAT, cheat_index);
+        //Save Array of answers
+        savedInstanceState.putIntArray("score", mAnswerBank);
+        //Save index complete quizz
+        savedInstanceState.putInt("complete_quizz", mIndexCompleteQuizz);
     }
     @Override
     public void onStop() {
