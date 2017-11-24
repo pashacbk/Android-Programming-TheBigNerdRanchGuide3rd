@@ -39,6 +39,8 @@ public class CheatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheat);
 
+        //Block change screen orientation to not allow reset answer
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
         //Set text to show API Level
@@ -57,8 +59,6 @@ public class CheatActivity extends AppCompatActivity {
                     mAnswerTextView.setText(R.string.false_button);
                 }
                 setAnswerShownResult(true);
-                //Block change screen orientation when user seen answer
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
                 //Animation for API>=21
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

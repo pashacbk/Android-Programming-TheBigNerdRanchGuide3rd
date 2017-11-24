@@ -18,6 +18,7 @@ public class QuizzActivity extends Activity {
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
     private TextView mQuestionTextView;
+    private TextView mHintNumberTextView;
 
     private static final String TAG = "QuizzActivity";
     private static final String KEY_INDEX = "index";
@@ -42,6 +43,7 @@ public class QuizzActivity extends Activity {
     private int sumAnswer = 0;
     //Index to verify if cheated
     private int cheat_index = 0;
+    private int hint_number = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,11 @@ public class QuizzActivity extends Activity {
             mAnswerBank = savedInstanceState.getIntArray("score");
             //Recreate the index complete quizz
             mIndexCompleteQuizz = savedInstanceState.getInt("complete_quizz");
+            hint_number = savedInstanceState.getInt("hint_number");
         }
+
+        mHintNumberTextView = (TextView) findViewById(R.id.hint_number);
+        mHintNumberTextView.setText("Hint: " + hint_number);
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
@@ -179,6 +185,10 @@ public class QuizzActivity extends Activity {
             //Verify if mIsCheater==true then cheat_index=1
             if(mIsCheater) {
                 cheat_index = 1;
+                hint_number--;
+                mHintNumberTextView.setText("Hint: " + hint_number);
+                if(hint_number <= 0)
+                    mCheatButton.setEnabled(false);
             }
         }
     }
@@ -254,6 +264,7 @@ public class QuizzActivity extends Activity {
         savedInstanceState.putIntArray("score", mAnswerBank);
         //Save index complete quizz
         savedInstanceState.putInt("complete_quizz", mIndexCompleteQuizz);
+        savedInstanceState.putInt("hint_number", hint_number);
     }
     @Override
     public void onStop() {
